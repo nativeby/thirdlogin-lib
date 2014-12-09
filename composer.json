@@ -1,0 +1,17 @@
+{
+    "name": "thirdlogin-lib",
+    "description": "This library includes all the classes needed for third login",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "nativeby",
+            "email": "nativeby@163.com"
+        }
+    ],
+
+    "autoload": {
+        "classmap" : [
+            "src/"
+        ]
+    }
+}
