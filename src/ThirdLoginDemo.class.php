@@ -3,6 +3,7 @@
 class ThirdLoginDemo{
 
     public $type = '';
+    public $openId = '';
 
     /**
      * 实例化一个登录第三方的实例
@@ -56,18 +57,19 @@ class ThirdLoginDemo{
      *      redirect_uri    必须  和第一步保持一致
      * @param $authorization_code
      * @throws Exception
-     * @return mixed
+     * @return array
      */
-    public function getAccessToken($authorization_code){
+    public function getTokenInfo($authorization_code){
 
         if(empty($this->type) || empty($authorization_code)){
             throw new Exception('参数错误');
         }
 
         $sns  = ThirdOauth::getInstance($this->type);
-        $access_token = $sns->getAccessToken($authorization_code);
+        $token_info = $sns->getTokenInfo($authorization_code);
+        $this->openId = $token_info['openid'];
 
-        return $access_token;
+        return $token_info;
     }
 
     /**
@@ -91,5 +93,9 @@ class ThirdLoginDemo{
         $user_info = $sns->call('users/show',array('screen_name' => 'bosco_yan'));
 
         var_dump($user_info);
+    }
+
+    public function getOpenId(){
+
     }
 }

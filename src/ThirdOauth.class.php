@@ -62,10 +62,10 @@ abstract class ThirdOauth{
 	protected $ApiBase = '';
 	
 	/**
-	 * 授权后获取到的TOKEN信息
+	 * 授权后获取到的Token信息
 	 * @var array
 	 */
-	protected $Token = null;
+	protected $Token = '';
 
 	/**
 	 * 调用接口类型
@@ -129,12 +129,12 @@ abstract class ThirdOauth{
 	}
 	
 	/**
-	 * 获取access_token
+	 * 获取TokenInfo，包括access_token、token过期时间、带回来的openid
 	 * @param string $code 上一步请求到的code
      * @param $code
      * @return mixed
      */
-    public function getAccessToken($code){
+    public function getTokenInfo($code){
 		$params = array(
             'client_id'     => $this->AppKey,
 			'client_secret' => $this->AppSecret,
@@ -226,10 +226,5 @@ abstract class ThirdOauth{
 	 * 解析access_token方法请求后的返回值
 	 */
 	abstract protected function parseToken($result);
-	
-	/**
-	 * 抽象方法，在SNSSDK中实现
-	 * 获取当前授权用户的SNS标识
-	 */
-	abstract public function openid();	
+
 }
