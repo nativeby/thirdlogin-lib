@@ -1,5 +1,4 @@
 <?php
-namespace Thirdlogin;
 
 class SinaSDK extends ThirdOauth{
 	/**
@@ -19,6 +18,8 @@ class SinaSDK extends ThirdOauth{
 	 * @var string
 	 */
 	protected $ApiBase = 'https://api.weibo.com/2/';
+
+    protected $openId = '';
 	
 	/**
 	 * 组装接口调用参数 并调用接口
@@ -47,9 +48,8 @@ class SinaSDK extends ThirdOauth{
     protected function parseToken($result){
 		$data = json_decode($result, true);
 		if($data['access_token'] && $data['expires_in'] && $data['remind_in'] && $data['uid']){
-			$data['openid'] = $data['uid'];
-			unset($data['uid']);
-			return $data;
+            $this->openId = $data['uid'];
+			return $data['access_token'];
 		} else
 			throw new Exception("获取新浪微博ACCESS_TOKEN出错：{$data['error']}");
 	}
@@ -60,9 +60,9 @@ class SinaSDK extends ThirdOauth{
      * @throws Exception
      */
     public function openid(){
-		$data = $this->Token;
-		if(isset($data['openid']))
-			return $data['openid'];
+		$openId = $this->openId;
+		if(!empty($openId))
+			return $openId;
 		else
 			throw new Exception('没有获取到新浪微博用户ID！');
 	}

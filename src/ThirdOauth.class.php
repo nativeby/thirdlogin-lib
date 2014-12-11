@@ -1,7 +1,5 @@
 <?php
 
-namespace Thirdlogin;
-
 abstract class ThirdOauth{
 	/**
 	 * oauth版本

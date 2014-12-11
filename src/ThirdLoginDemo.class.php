@@ -1,7 +1,6 @@
 <?php
-namespace Thirdlogin;
 
-class Demo{
+class ThirdLoginDemo{
 
     public $type = '';
 
@@ -57,6 +56,7 @@ class Demo{
      *      redirect_uri    必须  和第一步保持一致
      * @param $authorization_code
      * @throws Exception
+     * @return mixed
      */
     public function getAccessToken($authorization_code){
 
@@ -67,7 +67,7 @@ class Demo{
         $sns  = ThirdOauth::getInstance($this->type);
         $access_token = $sns->getAccessToken($authorization_code);
 
-        echo $access_token;
+        return $access_token;
     }
 
     /**

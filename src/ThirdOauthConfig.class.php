@@ -1,5 +1,4 @@
 <?php
-namespace Thirdlogin;
 
 class ThirdOauthConfig{
 
@@ -8,7 +7,7 @@ class ThirdOauthConfig{
         'THIRD_LOGIN_SINA' => array(
             'APP_KEY'    => '2403369423',                       //应用注册成功后分配的 AppId
             'APP_SECRET' => '546036a13973c4f2966ac27836e841aa', //应用注册成功后分配的 AppKey
-            'CALLBACK'   => 'http://3gb.baihe.com',
+            'CALLBACK'   => 'http://www.baihe.com',
         ),
     );
 
