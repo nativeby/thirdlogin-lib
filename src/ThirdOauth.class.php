@@ -1,6 +1,6 @@
 <?php
 
-require_once "ThirdOauthConfig.class.php";
+namespace Thirdlogin;
 
 abstract class ThirdOauth{
 	/**
@@ -82,15 +82,17 @@ abstract class ThirdOauth{
     public function __construct($token = null){
 		//设置SDK类型
 		$class = get_class($this);
-		$this->Type = strtoupper(substr($class, 0, strlen($class)-3));
+		$this->Type = substr($class, 0, strlen($class)-3);
 
 		//获取应用配置
+        require_once("ThirdOauthConfig.class.php");
 		$config =  ThirdOauthConfig::getConfig($this->Type);
-		if(empty($config['APP_KEY']) || empty($config['APP_SECRET'])){
-			throw new Exception('请配置您申请的APP_KEY和APP_SECRET');
+		if(empty($config['APP_KEY']) || empty($config['APP_SECRET']) || empty($config['CALLBACK'])){
+			throw new Exception('请配置您申请的APP_KEY 或 APP_SECRET 或 CALLBACK');
 		} else {
 			$this->AppKey    = $config['APP_KEY'];
 			$this->AppSecret = $config['APP_SECRET'];
+            $this->Callback  = $config['CALLBACK'];
 			$this->Token     = $token; //设置获取到的TOKEN
 		}
 	}
@@ -112,28 +114,19 @@ abstract class ThirdOauth{
             throw new Exception($name .'_NOT_EXIST');
     	}
     }
-	
-	/**
-	 * 请求code 
-	 */
-	public function getRequestCodeURL(){
-		$this->config();
+
+    /**
+     * 获得授权码
+     * @return string
+     */
+    public function getRequestCodeURL(){
 		//Oauth 标准参数
 		$params = array(
+            'response_type' => $this->ResponseType,
 			'client_id'     => $this->AppKey,
 			'redirect_uri'  => $this->Callback,
-			'response_type' => $this->ResponseType,
 		);
-		
-		//获取额外参数
-		if($this->Authorize){
-			parse_str($this->Authorize, $_param);
-			if(is_array($_param)){
-				$params = array_merge($params, $_param);
-			} else {
-				throw new Exception('AUTHORIZE配置不正确！');
-			}
-		}
+
 		return $this->GetRequestCodeURL . '?' . http_build_query($params);
 	}
 	
@@ -141,34 +134,32 @@ abstract class ThirdOauth{
 	 * 获取access_token
 	 * @param string $code 上一步请求到的code
      * @param $code
-     * @param null $extend
      * @return mixed
      */
-    public function getAccessToken($code, $extend = null){
-		$this->config();
+    public function getAccessToken($code){
 		$params = array(
-				'client_id'     => $this->AppKey,
-				'client_secret' => $this->AppSecret,
-				'grant_type'    => $this->GrantType,
-				'code'          => $code,
-				'redirect_uri'  => $this->Callback,
+            'client_id'     => $this->AppKey,
+			'client_secret' => $this->AppSecret,
+			'grant_type'    => $this->GrantType,
+			'code'          => $code,
+			'redirect_uri'  => $this->Callback,
 		);
 
 		$data = $this->http($this->GetAccessTokenURL, $params, 'POST');
-		$this->Token = $this->parseToken($data, $extend);
+		$this->Token = $this->parseToken($data);
 		return $this->Token;
 	}
 
 	/**
 	 * 合并默认参数和额外参数
-	 * @param array $params  默认参数
-	 * @param array/string $param 额外参数
+	 * @param array $common_params  通用参数
+	 * @param array/string $extra_params 额外参数
 	 * @return array:
 	 */
-	protected function param($params, $param){
-		if(is_string($param))
-			parse_str($param, $param);
-		return array_merge($params, $param);
+	protected function mergeParams($common_params, $extra_params){
+		if(is_string($extra_params))
+			parse_str($extra_params, $extra_params);
+		return array_merge($common_params, $extra_params);
 	}
 
 	/**
@@ -225,19 +216,6 @@ abstract class ThirdOauth{
 		if($error) throw new Exception('请求发生错误：' . $error);
 		return  $data;
 	}
-
-    /**
-     * 初始化配置
-     */
-    private function config(){
-        $config =  OauthConfig::getConfig($this->Type);
-        if(!empty($config['AUTHORIZE']))
-            $this->Authorize = $config['AUTHORIZE'];
-        if(!empty($config['CALLBACK']))
-            $this->Callback = $config['CALLBACK'];
-        else
-            throw new Exception('请配置回调页面地址');
-    }
 	
 	/**
 	 * 抽象方法，在SNSSDK中实现
@@ -249,7 +227,7 @@ abstract class ThirdOauth{
 	 * 抽象方法，在SNSSDK中实现
 	 * 解析access_token方法请求后的返回值
 	 */
-	abstract protected function parseToken($result, $extend);
+	abstract protected function parseToken($result);
 	
 	/**
 	 * 抽象方法，在SNSSDK中实现
