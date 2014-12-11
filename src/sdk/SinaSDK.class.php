@@ -52,18 +52,5 @@ class SinaSDK extends ThirdOauth{
 		} else
 			throw new Exception("获取新浪微博ACCESS_TOKEN出错：{$data['error']}");
 	}
-
-	/**
-	 * 获取当前授权应用的openid
-     * @return mixed
-     * @throws Exception
-     */
-    public function openid(){
-		$openId = $this->openId;
-		if(!empty($openId))
-			return $openId;
-		else
-			throw new Exception('没有获取到新浪微博用户ID！');
-	}
 	
 }
